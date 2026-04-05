@@ -1,0 +1,92 @@
+-- LocalScript - Sistema de texto flotante apilado con fade out
+-- Por: script mejorado
+
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TextOverlayGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Frame contenedor del texto (alineado abajo, crece hacia arriba)
+local textFrame = Instance.new("Frame")
+textFrame.Size = UDim2.new(0.6, 0, 0.4, 0)
+textFrame.Position = UDim2.new(0.2, 0, 0.45, 0)
+textFrame.BackgroundTransparency = 1
+textFrame.ClipsDescendants = false
+textFrame.Parent = screenGui
+
+-- UIListLayout para apilar los textos de abajo hacia arriba
+local listLayout = Instance.new("UIListLayout")
+listLayout.Parent = textFrame
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+listLayout.Padding = UDim.new(0, 2)
+
+-- TextBox (input)
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(0.35, 0, 0.07, 0)
+textBox.Position = UDim2.new(0.325, 0, 0.85, 0)
+textBox.PlaceholderText = "Write here..."
+textBox.ClearTextOnFocus = false
+textBox.Text = ""
+textBox.Font = Enum.Font.SourceSansBold
+textBox.TextSize = 20
+textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.BorderSizePixel = 0
+textBox.Parent = screenGui
+
+Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 8)
+
+local orderCounter = 0
+
+-- FunciÃ³n para crear texto apilado con fade out
+local function createFloatingText(texto)
+	orderCounter = orderCounter + 1
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, 0, 0, 36)
+	label.BackgroundTransparency = 1
+	label.Text = texto
+	label.Font = Enum.Font.SourceSansBold
+	label.TextSize = 26
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextTransparency = 0
+	label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	label.TextStrokeTransparency = 0  -- contorno negro visible
+	label.TextXAlignment = Enum.TextXAlignment.Center
+	label.RichText = false
+	label.LayoutOrder = orderCounter
+	label.Parent = textFrame
+
+	-- Esperar 7 segundos y luego hacer fade out
+	task.delay(7, function()
+		local steps = 30
+		local interval = 0.5 / steps  -- fade dura 0.5 seg
+
+		for i = 1, steps do
+			if label and label.Parent then
+				local t = i / steps
+				label.TextTransparency = t
+				label.TextStrokeTransparency = t
+			end
+			task.wait(interval)
+		end
+
+		if label and label.Parent then
+			label:Destroy()
+		end
+	end)
+end
+
+-- Conectar TextBox
+textBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed and textBox.Text ~= "" then
+		createFloatingText(textBox.Text)
+		textBox.Text = ""
+	end
+end)
