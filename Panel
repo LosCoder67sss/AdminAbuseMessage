@@ -1,4 +1,4 @@
--- LocalScript - Sistema de texto flotante apilado con fade out
+- LocalScript - Sistema de texto flotante apilado con fade out
 
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -60,31 +60,3 @@ local function createFloatingText(texto)
 	label.RichText = false
 	label.LayoutOrder = orderCounter
 	label.Parent = textFrame
-
-	-- Fade out despuÃ©s de 7 segundos
-	task.delay(7, function()
-		local steps = 30
-		local interval = 0.5 / steps
-
-		for i = 1, steps do
-			if label and label.Parent then
-				local t = i / steps
-				label.TextTransparency = t
-				label.TextStrokeTransparency = t
-			end
-			task.wait(interval)
-		end
-
-		if label and label.Parent then
-			label:Destroy()
-		end
-	end)
-end
-
--- Enter para enviar
-textBox.FocusLost:Connect(function(enterPressed)
-	if enterPressed and textBox.Text ~= "" then
-		createFloatingText(textBox.Text)
-		textBox.Text = ""
-	end
-end)
